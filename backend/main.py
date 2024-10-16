@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from fastapi import FastAPI, Depends,
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Product
-from . import models, database
+import models
+import database
 import uvicorn
 
 app = FastAPI()
