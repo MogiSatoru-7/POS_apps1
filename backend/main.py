@@ -1,27 +1,29 @@
 from fastapi import FastAPI
-from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends,
 from sqlalchemy.orm import Session
+from database import get_db
+from models import Product
 from . import models, database
 import uvicorn
 
 app = FastAPI()
+# CORS設定
+from fastapi.middleware.cors import CORSMiddleware
 
-# データベーステーブルの作成
-models.Base.metadata.create_all(bind=database.engine)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 必要に応じて制限
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/items/")
-def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):
-    items = db.query(models.Item).offset(skip).limit(limit).all()
-    return items
+# 商品一覧を取得するエンドポイント
+@app.get("/products")
+def get_products(db: Session = Depends(get_db)):
+    products = db.query(Product).all()
+    return products
 
-@app.post("/items/")
-def create_item(name: str, price: float, stock: int, db: Session = Depends(database.get_db)):
-    db_item = models.Item(name=name, price=price, stock=stock)
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
 
 
 # @app.get("/")

@@ -1,10 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float
-from .database import Base
+from sqlalchemy import Column, Integer, String
+from database import Base
 
-class Item(Base):
-    __tablename__ = "items"
+# Productsテーブルのモデル定義
+class Product(Base):
+    __tablename__ = "Products"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), index=True)
-    price = Column(Float)
-    stock = Column(Integer)
+    PRD_ID = Column(Integer, primary_key=True, index=True)
+    CODE = Column(String(13), unique=True, index=True)
+    NAME = Column(String(50))
+    PRICE = Column(Integer)
