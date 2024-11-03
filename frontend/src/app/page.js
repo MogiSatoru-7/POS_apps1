@@ -1,42 +1,76 @@
+// src/app/page.js
 "use client";  // Client Componentとして動作させる
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import ProductInput from '../../components/ProductInput';
+import ProductDisplay from '../../components/ProductDisplay';
+import PurchaseList from '../../components/PurchaseList';
+import '../styles/main.css';
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/products')
-      .then(response => response.json())
-      .then(data => setProducts(data))
-      .catch(error => console.error("Error fetching products:", error));
-  }, []);
+const Page = () => {
+  const [productData, setProductData] = useState(null);
+  const [purchases, setPurchases] = useState([]);
+  const [total, setTotal] = useState(0); // 合計金額のステートを追加
+
+  // 商品を購入リストに追加する関数
+  const addToPurchaseList = () => {
+    if (productData) {
+      const newPurchase = { ...productData, quantity: 1 };
+      setPurchases([...purchases, newPurchase]);
+      // 合計金額を更新
+      setTotal(total + productData.PRICE);
+      // 商品データをクリアする
+      setProductData(null);
+    }
+  };
+
+  const handlePurchase = async () => {
+    try {
+      // 各商品をバックエンドに送信する
+      for (const item of purchases) {
+        const response = await fetch('http://127.0.0.1:8000/purchase', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_code: item.CODE,
+            quantity: item.quantity,
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error('購入処理中にエラーが発生しました');
+        }
+      }
+      // 成功した場合に購入リストをクリアし、合計金額をリセット
+      setPurchases([]);
+      setTotal(0);
+
+      // 成功メッセージを表示
+      alert('購入が完了しました！');
+    } catch (error) {
+      console.error('購入処理中にエラーが発生しました:', error);
+      alert(error.message || '購入処理中にエラーが発生しました。もう一度試してください。');
+    }
+  };
 
   return (
     <div>
-      <h1>Product List</h1>
-      <ul>
-        {products.map(product => (
-          <li key={product.PRD_ID}>
-            {product.NAME}: {product.PRICE} 円
-          </li>
-        ))}
-      </ul>
+      <h1>POS Application</h1>
+      <ProductInput onProductData={setProductData} />
+      <ProductDisplay product={productData} />
+      {/* 「追加」ボタンをProductDisplayの下に配置 */}
+      <button onClick={addToPurchaseList}>追加</button>
+      <PurchaseList purchases={purchases} total={total} onPurchase={handlePurchase} />
     </div>
   );
 };
 
-export default function Home() {
-  return (
-    <div>
-      <h1>POS Application</h1>
-      <ProductList />
-    </div>
-  );
-}
+export default Page;
 
-
-//下記初期コード
+// nextjs初期画面
 // import Image from "next/image";
 
 // export default function Home() {
@@ -45,7 +79,7 @@ export default function Home() {
 //       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
 //         <Image
 //           className="dark:invert"
-//           src="https://nextjs.org/icons/next.svg"
+//           src="/next.svg"
 //           alt="Next.js logo"
 //           width={180}
 //           height={38}
@@ -71,7 +105,7 @@ export default function Home() {
 //           >
 //             <Image
 //               className="dark:invert"
-//               src="https://nextjs.org/icons/vercel.svg"
+//               src="/vercel.svg"
 //               alt="Vercel logomark"
 //               width={20}
 //               height={20}
@@ -97,7 +131,7 @@ export default function Home() {
 //         >
 //           <Image
 //             aria-hidden
-//             src="https://nextjs.org/icons/file.svg"
+//             src="/file.svg"
 //             alt="File icon"
 //             width={16}
 //             height={16}
@@ -112,7 +146,7 @@ export default function Home() {
 //         >
 //           <Image
 //             aria-hidden
-//             src="https://nextjs.org/icons/window.svg"
+//             src="/window.svg"
 //             alt="Window icon"
 //             width={16}
 //             height={16}
@@ -127,7 +161,7 @@ export default function Home() {
 //         >
 //           <Image
 //             aria-hidden
-//             src="https://nextjs.org/icons/globe.svg"
+//             src="/globe.svg"
 //             alt="Globe icon"
 //             width={16}
 //             height={16}
