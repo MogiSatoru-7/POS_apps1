@@ -1,3 +1,4 @@
+#main.py
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
@@ -96,6 +97,14 @@ def read_root():
 @app.get("/items/") #動作テスト用（削除可能）
 async def get_items():
     return { "items": ["item1", "item2"]}
+
+# 購入履歴を取得するエンドポイント
+@app.get("/purchase-history")
+async def get_purchase_history(db: Session = Depends(get_db)):
+    purchase_history = db.query(PurchaseHistory).all()
+    return purchase_history
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

@@ -1,9 +1,13 @@
 # models.py
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+
+# Baseクラスを作成
+Base = declarative_base()
 
 # 商品情報テーブル
 class Product(Base):
@@ -14,15 +18,14 @@ class Product(Base):
     NAME = Column(String(50))
     PRICE = Column(Integer)
 
-# 購入履歴テーブル
-class PurchaseHistory(Base):
-    __tablename__ = "PurchaseHistory"
+# Taxテーブルのモデル
+class Tax(Base):
+    __tablename__ = "Tax"
 
-    id = Column(Integer, primary_key=True, index=True)
-    product_code = Column(String(13), ForeignKey("Products.CODE"))
-    quantity = Column(Integer)
-    total_price = Column(Integer)
-    purchased_at = Column(DateTime(timezone=True), server_default=func.now())
+    ID = Column(Integer, primary_key=True, index=True)
+    CODE = Column(String(2), unique=True, index=True)
+    NAME = Column(String(20))
+    PERCENT = Column(DECIMAL(5, 2))
 
 # 取引テーブル
 class Transactions(Base):
@@ -48,3 +51,13 @@ class TransactionDetails(Base):
     PRD_PRICE = Column(Integer)
     TAX_CD = Column(String(10))
     #quantity = Column(Integer)   # 購入数を表すカラムはER図にないため一旦保留
+
+# 購入履歴テーブル
+class PurchaseHistory(Base):
+    __tablename__ = "PurchaseHistory"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_code = Column(String(13), ForeignKey("Products.CODE"))
+    quantity = Column(Integer)
+    total_price = Column(Integer)
+    purchased_at = Column(DateTime(timezone=True), server_default=func.now())
