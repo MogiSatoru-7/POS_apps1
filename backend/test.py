@@ -8,9 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-import mysql.connector
-from mysql.connector import Error
-
 # .envファイルの読み込み
 load_dotenv()
 
